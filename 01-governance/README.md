@@ -1,147 +1,173 @@
 # Engineering Governance
 
-> Governance establishes how engineering standards are created, reviewed, approved, versioned, adopted, and continuously improved.
+> Engineering governance establishes the organizational policies, processes, and decision frameworks that enable software systems to be designed, built, deployed, operated, and evolved consistently throughout their lifecycle.
 
 ---
 
 ## Purpose
 
-Engineering standards only create value when they are:
+Engineering excellence is not achieved solely through technical expertise.
 
-- Consistent
-- Trusted
-- Current
-- Reviewable
-- Practical
-- Adopted across projects
+It also requires consistent decision-making, appropriate oversight, clear accountability, measurable evidence, and continuous improvement.
 
-Engineering governance provides the framework that ensures every standard within this repository maintains those qualities throughout its lifecycle.
+The purpose of this section is to define the governance model that guides engineering work across all software projects within an organization.
 
-This directory defines **how engineering standards themselves are managed**.
-
-It does **not** define technical engineering practices such as architecture, reliability, or security. Those are covered in their respective domains.
+Engineering governance provides the foundation upon which every technical engineering discipline is built.
 
 ---
 
-# Objectives
+# Why Governance Matters
 
-Engineering governance aims to:
+As engineering organizations grow, inconsistency becomes one of the largest sources of operational risk.
 
-- Establish a consistent quality standard for engineering documentation.
-- Define how standards are proposed and approved.
-- Ensure standards remain technically accurate.
-- Prevent conflicting guidance across documents.
-- Maintain version history and change traceability.
-- Encourage continuous improvement based on operational learning.
-- Keep standards aligned with industry best practices.
+Different teams begin to:
+
+- design systems differently
+- interpret engineering standards differently
+- introduce technologies inconsistently
+- evaluate production readiness differently
+- accept engineering risk inconsistently
+
+The result is increased operational complexity, reduced maintainability, inconsistent customer experience, and higher long-term engineering costs.
+
+Engineering governance establishes a common organizational approach while allowing engineering teams to make appropriate technical decisions within clearly defined boundaries.
 
 ---
 
 # Scope
 
-Governance applies to every document contained within this repository.
+This section defines **how engineering is governed**.
 
-It defines:
+It establishes organizational processes for:
 
-- Repository governance
-- Contribution process
-- Review process
-- Versioning policy
-- Document lifecycle
-- Terminology
-- Repository ownership
-- Change management
+- Classifying software systems
+- Applying engineering governance proportionate to business risk
+- Governing the software lifecycle
+- Reviewing architecture
+- Recording significant engineering decisions
+- Managing engineering risk
+- Evaluating production readiness
+- Validating engineering claims through evidence
+- Managing justified exceptions
+- Measuring engineering maturity
 
-It does **not** define engineering practices themselves.
+It intentionally does **not** define technical implementation guidance.
+
+Technical engineering practices are documented in later sections of this repository.
 
 ---
 
 # Governance Principles
 
-Every engineering standard should be:
+Engineering governance within this repository follows several fundamental principles.
 
 ## Business Driven
 
-Engineering exists to solve business problems.
+Engineering governance exists to support business objectives.
 
-Standards should improve engineering outcomes rather than introduce unnecessary process.
+Process should never become more important than customer value.
 
 ---
 
-## Technology Neutral
+## Risk Based
 
-Standards should describe engineering principles.
+Engineering rigor should be proportional to business impact and operational risk.
 
-Technology-specific guidance belongs in implementation examples.
+Critical systems require stronger governance than experimental systems.
 
 ---
 
 ## Evidence Based
 
-Engineering recommendations should be supported by:
-
-- operational experience
-- measurable evidence
-- authoritative references
-- engineering reasoning
+Engineering decisions should be supported by measurable evidence rather than assumptions or opinions.
 
 ---
 
-## Practical
+## Technology Neutral
 
-Standards should be realistic to implement.
+Governance defines engineering expectations—not technology preferences.
 
-A standard that cannot be adopted consistently has little organizational value.
-
----
-
-## Continuously Improved
-
-Engineering evolves.
-
-Standards should evolve with:
-
-- operational experience
-- technology changes
-- security guidance
-- regulatory requirements
-- engineering research
+Implementation choices should remain the responsibility of engineering teams.
 
 ---
 
-# Governance Lifecycle
+## Lightweight by Default
 
-Every engineering standard follows the same lifecycle.
+Governance should introduce the minimum process necessary to achieve reliable engineering outcomes.
+
+Unnecessary bureaucracy reduces engineering effectiveness.
+
+---
+
+## Continuously Improving
+
+Engineering governance should evolve through operational experience, engineering learning, architectural reviews, and production incidents.
+
+---
+
+# Governance Model
+
+Engineering governance within this repository is organized around several complementary capabilities.
 
 ```text
-Proposal
-    │
-    ▼
-Draft
-    │
-    ▼
-Technical Review
-    │
-    ▼
-Approval
-    │
-    ▼
-Published
-    │
-    ▼
-Periodic Review
-    │
-    ▼
-Revision
-    │
-    ▼
-Deprecated
-    │
-    ▼
-Archived
+Engineering Governance
+        │
+        ├── System Tiering
+        ├── Engineering Lifecycle
+        ├── Architecture Review
+        ├── Architecture Decision Records
+        ├── Engineering Risk Management
+        ├── Engineering Evidence Framework
+        ├── Production Readiness
+        ├── Exception Management
+        └── Engineering Maturity Model
 ```
 
-No published standard should remain unreviewed indefinitely.
+Each capability addresses a different aspect of engineering governance while working together as a single organizational framework.
+
+---
+
+# Governance Workflow
+
+Engineering governance is applied continuously throughout the lifecycle of every software system.
+
+```text
+Business Need
+        │
+        ▼
+System Tier Assignment
+        │
+        ▼
+Engineering Lifecycle
+        │
+        ▼
+Architecture Review
+        │
+        ▼
+Architecture Decision Records
+        │
+        ▼
+Engineering Risk Assessment
+        │
+        ▼
+Engineering Evidence Collection
+        │
+        ▼
+Production Readiness Review
+        │
+        ▼
+Exception Management (when required)
+        │
+        ▼
+Production
+        │
+        ▼
+Engineering Maturity Improvement
+```
+
+Governance is not a single approval gate.
+
+It is a continuous engineering discipline.
 
 ---
 
@@ -152,126 +178,111 @@ No published standard should remain unreviewed indefinitely.
 │
 ├── README.md
 ├── engineering-governance.md
-├── repository-governance.md
-├── contribution-guidelines.md
-├── review-process.md
-├── document-lifecycle.md
-├── versioning-policy.md
-├── glossary.md
-└── faq.md
+├── system-tiering.md
+├── engineering-lifecycle.md
+├── architecture-review.md
+├── architecture-decision-records.md
+├── risk-management.md
+├── evidence-framework.md
+├── production-readiness.md
+├── exception-management.md
+└── engineering-maturity-model.md
 ```
 
----
+Each document focuses on one governance capability.
 
-# Documents
-
-## engineering-governance.md
-
-Defines the engineering governance philosophy and foundational governance principles.
+Together they define the organization's engineering governance model.
 
 ---
 
-## repository-governance.md
+# Relationship to Other Sections
 
-Defines repository ownership, maintainers, approval authority, and repository management responsibilities.
+Governance establishes **how engineering is managed**.
 
----
-
-## contribution-guidelines.md
-
-Explains how new standards, improvements, corrections, and examples should be proposed.
-
----
-
-## review-process.md
-
-Defines the technical review and approval workflow for engineering standards.
-
----
-
-## document-lifecycle.md
-
-Describes how standards move through their lifecycle from proposal to retirement.
-
----
-
-## versioning-policy.md
-
-Defines document versioning, compatibility expectations, revision history, and deprecation strategy.
-
----
-
-## glossary.md
-
-Provides consistent engineering terminology used throughout the repository.
-
----
-
-## faq.md
-
-Answers common questions about repository governance and contribution.
-
----
-
-# Relationship to the Rest of the Repository
-
-Governance provides the foundation for every engineering discipline.
+Subsequent sections define **how engineering is performed**.
 
 ```text
-Governance
-      │
-      ▼
-Core Engineering
-      │
-      ▼
-Project Governance
-      │
-      ▼
-Architecture
-      │
-      ▼
-Reliability
-      │
-      ▼
-Security
-      │
-      ▼
-Data
-      │
-      ▼
-Platform Engineering
-      │
-      ▼
-Delivery Engineering
-      │
-      ▼
-Operations
+README
+    │
+    ▼
+01 Governance
+    │
+    ▼
+02 Core Engineering
+    │
+    ▼
+03 Architecture
+    │
+    ▼
+04 Reliability
+    │
+    ▼
+05 Security
+    │
+    ▼
+06 Data
+    │
+    ▼
+07 Platform Engineering
+    │
+    ▼
+08 Delivery Engineering
+    │
+    ▼
+09 Observability
+    │
+    ▼
+10 Operations
+    │
+    ▼
+11 AI & Data Platform
+    │
+    ▼
+12 FinOps
 ```
 
-Every engineering standard should follow the governance defined in this directory.
+Every engineering discipline should align with the governance model established in this section.
 
 ---
 
 # Success Criteria
 
-Engineering governance is successful when:
+Effective engineering governance should produce measurable organizational outcomes.
 
-- Standards are easy to find.
-- Standards remain consistent.
-- Documents are technically accurate.
-- Contributors understand how to participate.
-- Changes are reviewed appropriately.
-- Engineering guidance remains current.
-- Teams trust the standards.
+Examples include:
 
-Governance should improve engineering quality without creating unnecessary bureaucracy.
+- Consistent engineering practices across teams.
+- Improved architectural quality.
+- Reduced operational risk.
+- Better production readiness.
+- Faster engineering decision-making.
+- Improved engineering documentation.
+- Higher deployment confidence.
+- Reduced incident recurrence.
+- Continuous organizational learning.
+
+Governance should improve engineering capability—not merely increase process.
 
 ---
 
-# Next Reading
+# Intended Audience
 
-After understanding governance, continue with:
+This section is intended for:
 
-- `02-core-engineering/README.md`
+- Software Engineers
+- Technical Leads
+- Staff and Principal Engineers
+- Architects
+- Engineering Managers
+- Platform Engineers
+- Site Reliability Engineers
+- Security Engineers
+- Technology Leaders
 
-The Core Engineering section defines the engineering principles, values, and decision frameworks that guide every technical standard in this repository.
+It is applicable regardless of programming language, cloud provider, deployment model, or architectural style.
+
+---
+
+# Final Principle
+
+> **Engineering governance is not about controlling engineering decisions. It is about creating a consistent organizational framework that enables engineers to make better decisions, manage risk intelligently, and continuously improve the way software systems are designed, delivered, operated, and evolved.**
