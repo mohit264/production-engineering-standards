@@ -1,0 +1,906 @@
+# Continuous Integration
+
+> Continuous Integration is the discipline of continuously validating changes as they enter the shared software system.
+
+---
+
+**Status:** Engineering Standard
+
+**Version:** 1.0
+
+**Classification:** Delivery Engineering
+
+---
+
+# Purpose
+
+Continuous Integration (CI) provides automated feedback about the correctness, security, and integrity of engineering changes before those changes progress toward production.
+
+CI should establish confidence that a change:
+
+- can be built,
+- passes appropriate tests,
+- satisfies important engineering constraints,
+- does not introduce known unacceptable risks,
+- can become a trustworthy production candidate.
+
+---
+
+# Engineering Principle
+
+> **The purpose of CI is not to make builds green. It is to continuously establish evidence that a change is safe to integrate.**
+
+---
+
+# 1. The CI Boundary
+
+CI begins when a controlled source change is submitted.
+
+Conceptually:
+
+```text
+Source Change
+      │
+      ▼
+CI Validation
+      │
+      ├── Build
+      ├── Test
+      ├── Security Checks
+      ├── Quality Checks
+      └── Policy Checks
+      │
+      ▼
+Evidence
+      │
+      ▼
+Integration / Rejection
+```
+
+CI should produce evidence rather than merely execute commands.
+
+---
+
+# 2. Fast Feedback
+
+CI should provide useful feedback quickly enough that engineers can act on it while the change is still fresh in their context.
+
+This does not mean every possible test must run immediately.
+
+Instead, validation should be structured according to:
+
+- feedback value,
+- execution cost,
+- failure probability,
+- change risk.
+
+---
+
+# 3. Validation Layers
+
+CI validation may include:
+
+```text
+Static Validation
+       │
+       ▼
+Unit Tests
+       │
+       ▼
+Integration Tests
+       │
+       ▼
+Security Validation
+       │
+       ▼
+Artifact Validation
+```
+
+The exact layers depend on the system.
+
+---
+
+# 4. Build Validation
+
+CI should establish that the software can be built from the submitted source.
+
+A build failure should prevent the change from being considered production-ready.
+
+Build validation should expose:
+
+- compilation errors,
+- missing dependencies,
+- incompatible toolchains,
+- invalid configuration,
+- packaging failures.
+
+---
+
+# 5. Unit Tests
+
+Unit tests validate localized behavior.
+
+They are valuable because they:
+
+- execute quickly,
+- isolate failures,
+- provide rapid feedback,
+- support refactoring.
+
+Unit tests should focus on meaningful behavior rather than maximizing a coverage percentage.
+
+---
+
+# 6. Integration Tests
+
+Integration tests validate interactions between components.
+
+Examples include:
+
+- database integration,
+- service communication,
+- messaging,
+- external interfaces,
+- storage systems.
+
+Integration tests should exist where correctness depends on interactions that unit tests cannot establish.
+
+---
+
+# 7. Contract Tests
+
+Where services communicate through explicit interfaces, contract tests may verify that changes remain compatible.
+
+This is particularly useful when:
+
+- services evolve independently,
+- multiple consumers exist,
+- deployments are independently managed.
+
+---
+
+# 8. End-to-End Tests
+
+End-to-end tests validate complete user or business flows.
+
+They provide valuable confidence but are generally:
+
+- slower,
+- more fragile,
+- more expensive to maintain.
+
+They should therefore complement rather than replace lower-level tests.
+
+---
+
+# 9. Test Pyramid
+
+A healthy test strategy generally balances:
+
+```text
+        End-to-End
+       Integration
+      Unit / Component
+```
+
+The exact proportions depend on the architecture.
+
+The objective is not to follow a fixed ratio.
+
+The objective is to achieve sufficient confidence at reasonable feedback cost.
+
+---
+
+# 10. Test Determinism
+
+CI tests should be as deterministic as practical.
+
+A test that randomly changes between:
+
+```text
+Pass
+```
+
+and:
+
+```text
+Fail
+```
+
+without a meaningful source change creates noise.
+
+Flaky tests should be treated as engineering problems.
+
+---
+
+# 11. Flaky Tests
+
+A flaky test reduces trust in CI.
+
+When a test is known to be flaky, teams should:
+
+- identify the cause,
+- fix it,
+- isolate it temporarily where necessary,
+- track the remediation.
+
+A permanently tolerated flaky test suite eventually teaches engineers to ignore failures.
+
+---
+
+# 12. Test Isolation
+
+CI environments should provide sufficient isolation to prevent one change from affecting another.
+
+Isolation may involve:
+
+- clean workspaces,
+- isolated dependencies,
+- disposable environments,
+- controlled test data.
+
+The appropriate mechanism depends on the system.
+
+---
+
+# 13. Test Data
+
+Test data should be controlled and reproducible where practical.
+
+Avoid depending on:
+
+- manually modified shared databases,
+- production data without appropriate controls,
+- undocumented external state.
+
+Test data should support reliable validation.
+
+---
+
+# 14. External Dependencies
+
+Tests that depend on external systems introduce uncertainty.
+
+Where practical, distinguish between:
+
+- deterministic local validation,
+- controlled integration validation,
+- external dependency validation.
+
+The objective is to understand whether a failure originates in the change or in the dependency.
+
+---
+
+# 15. Security Validation
+
+CI should integrate relevant security checks.
+
+Examples include:
+
+- secret scanning,
+- dependency vulnerability scanning,
+- static security analysis,
+- infrastructure policy validation,
+- container scanning.
+
+The exact checks should be proportional to risk.
+
+---
+
+# 16. Secret Detection
+
+CI should detect accidental introduction of secrets where practical.
+
+Potentially sensitive values include:
+
+- credentials,
+- tokens,
+- private keys,
+- certificates,
+- API keys.
+
+Detection is a safety net.
+
+It does not replace proper secret management.
+
+---
+
+# 17. Dependency Validation
+
+Dependency changes should receive appropriate automated validation.
+
+Consider:
+
+- known vulnerabilities,
+- license requirements,
+- integrity,
+- version changes,
+- transitive dependencies.
+
+Dependency validation should avoid creating unnecessary noise.
+
+---
+
+# 18. Static Analysis
+
+Static analysis can identify classes of defects without executing the application.
+
+Examples include:
+
+- type errors,
+- unreachable code,
+- unsafe APIs,
+- suspicious patterns,
+- code-quality issues.
+
+Static analysis should focus on findings that provide meaningful engineering value.
+
+---
+
+# 19. Formatting and Style
+
+Automated formatting and style checks can reduce review noise.
+
+These checks should generally be automated rather than relying on reviewers to manually enforce formatting conventions.
+
+---
+
+# 20. Quality Gates
+
+A quality gate defines conditions required before a change progresses.
+
+Examples include:
+
+```text
+Build
+  ✓
+
+Tests
+  ✓
+
+Security Checks
+  ✓
+
+Required Review
+  ✓
+
+──────────────
+Eligible for Integration
+```
+
+Gates should correspond to meaningful engineering requirements.
+
+---
+
+# 21. Blocking vs Informational Checks
+
+Not every CI finding needs to block integration.
+
+Checks should be classified appropriately:
+
+```text
+Blocking
+```
+
+when failure represents unacceptable risk.
+
+```text
+Informational
+```
+
+when the finding is useful but does not justify stopping delivery.
+
+Poorly chosen blocking rules can encourage teams to bypass CI.
+
+---
+
+# 22. Failure Semantics
+
+A failed check should have a clear meaning.
+
+For example:
+
+```text
+Build Failed
+      │
+      ▼
+Cannot Produce Artifact
+```
+
+or:
+
+```text
+Critical Security Check Failed
+      │
+      ▼
+Change Cannot Progress
+```
+
+Ambiguous failure states reduce confidence in the pipeline.
+
+---
+
+# 23. CI as Evidence
+
+A successful pipeline should produce evidence such as:
+
+- source revision,
+- build result,
+- test results,
+- security results,
+- artifact identity,
+- execution timestamp.
+
+This evidence contributes to delivery traceability.
+
+---
+
+# 24. Reproducible CI
+
+CI should make the build process sufficiently reproducible to investigate failures.
+
+Important inputs may include:
+
+- source revision,
+- toolchain,
+- dependency versions,
+- build configuration,
+- environment.
+
+Hidden mutable dependencies reduce reproducibility.
+
+---
+
+# 25. Build Environment
+
+The CI environment should be controlled appropriately.
+
+Consider:
+
+- tool versions,
+- operating system,
+- available credentials,
+- network access,
+- filesystem state,
+- installed dependencies.
+
+Build environments should not depend on undocumented assumptions.
+
+---
+
+# 26. Least Privilege
+
+CI jobs should receive only the permissions required for their work.
+
+For example:
+
+A test job generally should not automatically possess:
+
+- production credentials,
+- unrestricted cloud administration,
+- deployment permissions.
+
+Separating permissions reduces blast radius if the CI environment is compromised.
+
+---
+
+# 27. Untrusted Code
+
+CI may execute code supplied by contributors.
+
+Therefore, pipeline execution should consider:
+
+- untrusted pull requests,
+- malicious build scripts,
+- dependency execution,
+- secret exposure.
+
+Build isolation and credential boundaries should reflect this risk.
+
+---
+
+# 28. CI Credentials
+
+Credentials used by CI should be:
+
+- narrowly scoped,
+- short-lived where practical,
+- centrally managed,
+- auditable,
+- rotated appropriately.
+
+Avoid embedding long-lived credentials into repository configuration.
+
+---
+
+# 29. Pipeline Definitions
+
+CI definitions should themselves be version controlled.
+
+A change to the pipeline can change the security and correctness of every future build.
+
+Pipeline changes should therefore receive appropriate review.
+
+---
+
+# 30. Pipeline Dependencies
+
+CI may depend on:
+
+- source repositories,
+- package registries,
+- artifact repositories,
+- cloud services,
+- test environments.
+
+Important dependencies should have defined failure behavior.
+
+---
+
+# 31. CI Availability
+
+CI does not necessarily need to be infinitely available.
+
+However, important engineering teams should understand the consequences of CI unavailability.
+
+Possible approaches include:
+
+- retry,
+- queueing,
+- fallback capacity,
+- alternative runners,
+- documented recovery.
+
+---
+
+# 32. Parallelism
+
+Independent checks may run concurrently to reduce feedback time.
+
+Parallelism should be balanced against:
+
+- resource consumption,
+- test isolation,
+- infrastructure cost,
+- dependency limits.
+
+Faster CI is useful only when its results remain trustworthy.
+
+---
+
+# 33. Caching
+
+Caching can improve CI performance.
+
+However, caches can introduce:
+
+- stale dependencies,
+- hidden state,
+- non-reproducibility,
+- difficult-to-explain failures.
+
+Caches should therefore be treated as performance optimizations, not correctness dependencies.
+
+---
+
+# 34. Artifacts
+
+CI may produce:
+
+- binaries,
+- packages,
+- container images,
+- test reports,
+- coverage reports,
+- security reports.
+
+Artifacts should have clear identity and retention policies.
+
+Production candidates should not depend on unidentified temporary output.
+
+---
+
+# 35. Build Once
+
+Where practical, CI should produce the artifact that will later be promoted.
+
+This supports:
+
+```text
+Source
+  │
+  ▼
+CI Build
+  │
+  ▼
+Artifact
+  │
+  ▼
+Promotion
+```
+
+rather than rebuilding independently for each environment.
+
+---
+
+# 36. CI and Source Control
+
+CI should be triggered by controlled source changes.
+
+The relationship should be traceable:
+
+```text
+Commit
+  │
+  ▼
+CI Run
+  │
+  ▼
+Validation Results
+```
+
+This allows engineers to determine exactly which change caused a failure.
+
+---
+
+# 37. CI and Security
+
+CI is part of the software supply chain.
+
+A compromised CI system can potentially influence:
+
+- artifacts,
+- deployment credentials,
+- production systems.
+
+CI security should therefore be treated as production-grade security where its privileges warrant it.
+
+---
+
+# 38. CI and Delivery
+
+CI answers:
+
+> "Is this change sufficiently validated to become a candidate?"
+
+Delivery later answers:
+
+> "How should this candidate be promoted safely?"
+
+These are related but distinct responsibilities.
+
+---
+
+# 39. CI and Developer Experience
+
+CI should make correct behavior easy to achieve.
+
+Useful properties include:
+
+- clear failures,
+- actionable messages,
+- fast common checks,
+- predictable execution,
+- local equivalents where practical.
+
+The goal is to help engineers fix problems rather than merely report them.
+
+---
+
+# 40. Failure Diagnosis
+
+A CI failure should provide enough information to determine:
+
+- which check failed,
+- why it failed,
+- where it failed,
+- what changed,
+- how to reproduce it.
+
+Poor failure diagnostics increase engineering cycle time.
+
+---
+
+# 41. Test Coverage
+
+Coverage metrics can provide useful signals.
+
+However:
+
+> **Coverage measures exercised code, not correctness.**
+
+Teams should avoid treating a coverage percentage as proof of adequate testing.
+
+---
+
+# 42. Mutation and Higher-Order Testing
+
+For high-risk systems, stronger techniques may be appropriate.
+
+Examples include:
+
+- mutation testing,
+- property-based testing,
+- fuzz testing,
+- resilience testing.
+
+These should be introduced when they provide meaningful additional confidence.
+
+---
+
+# 43. Performance Validation
+
+Performance-sensitive systems may require CI checks for:
+
+- latency,
+- throughput,
+- resource usage,
+- regression thresholds.
+
+Performance tests should be designed carefully because environmental variation can affect results.
+
+---
+
+# 44. Compatibility Validation
+
+Systems with multiple supported versions may need CI validation for:
+
+- API compatibility,
+- database compatibility,
+- client compatibility,
+- protocol compatibility.
+
+Compatibility should be tested before incompatible changes reach production.
+
+---
+
+# 45. Policy as Code
+
+Where practical, important engineering policies can be validated automatically.
+
+Examples include:
+
+- infrastructure restrictions,
+- security rules,
+- repository policies,
+- dependency policies.
+
+Automated policy enforcement reduces reliance on manual review.
+
+---
+
+# 46. CI Governance
+
+Each project should define:
+
+- required checks,
+- blocking conditions,
+- review requirements,
+- artifact outputs,
+- retention,
+- ownership.
+
+Governance should reflect the system's risk.
+
+---
+
+# 47. Exceptions
+
+If a required CI check must be bypassed, the exception should be explicit.
+
+An exception should identify:
+
+- affected change,
+- reason,
+- risk,
+- approver where appropriate,
+- follow-up action.
+
+Repeated exceptions indicate that the engineering process itself may need improvement.
+
+---
+
+# 48. CI Metrics
+
+Useful CI metrics may include:
+
+- pipeline duration,
+- queue time,
+- failure rate,
+- flaky-test rate,
+- time to feedback,
+- successful validation rate.
+
+Metrics should be used to improve engineering flow rather than optimize for arbitrary targets.
+
+---
+
+# 49. CI Anti-Patterns
+
+Avoid:
+
+- giant pipelines where every change runs everything,
+- permanently ignored failures,
+- uncontrolled flaky tests,
+- production credentials available to every job,
+- rebuilding differently for each environment,
+- hidden manual steps,
+- mutable shared build environments,
+- meaningless quality gates,
+- treating coverage as correctness,
+- treating a green pipeline as proof that production will succeed.
+
+---
+
+# 50. Minimum Engineering Requirements
+
+Every production project should:
+
+- [ ] Automatically build important changes.
+- [ ] Run appropriate automated tests.
+- [ ] Validate important security properties.
+- [ ] Produce identifiable build evidence.
+- [ ] Associate CI results with a source revision.
+- [ ] Protect CI credentials.
+- [ ] Define blocking checks.
+- [ ] Make failures diagnosable.
+- [ ] Control CI execution environments appropriately.
+- [ ] Version-control CI definitions.
+- [ ] Track and address significant flaky tests.
+
+Higher-risk systems may additionally require:
+
+- [ ] Strong build isolation.
+- [ ] Ephemeral CI environments.
+- [ ] Artifact signing.
+- [ ] Formal provenance.
+- [ ] Fuzz testing.
+- [ ] Performance regression testing.
+- [ ] Policy-as-code enforcement.
+- [ ] Independent security validation.
+- [ ] Dedicated recovery procedures for CI compromise.
+
+---
+
+# Relationship With Other Delivery Standards
+
+This standard works with:
+
+- `07-delivery/README.md`
+- `07-delivery/source-control.md`
+- `07-delivery/build-and-artifacts.md`
+- `07-delivery/release-management.md`
+- `07-delivery/deployment.md`
+- `07-delivery/progressive-delivery.md`
+
+It also connects directly with:
+
+- `06-security/`
+- `05-reliability/`
+- `08-observability/`
+- `09-platform-and-infrastructure/`
+
+---
+
+# What This Standard Is Not
+
+This standard does not prescribe:
+
+- GitHub Actions,
+- GitLab CI,
+- Jenkins,
+- Azure DevOps,
+- CircleCI,
+- specific testing frameworks.
+
+Those are implementation choices.
+
+The engineering contract is:
+
+> **Every important change should receive automated, trustworthy validation before it progresses toward production.**
+
+---
+
+# Final Principle
+
+> **CI exists to reduce uncertainty. A successful CI run should give the organization meaningful evidence that a specific source change has satisfied the checks required for it to become a production candidate.**
