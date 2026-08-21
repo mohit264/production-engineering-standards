@@ -1,998 +1,656 @@
 # Security
 
-> Security is an architectural property of the system, not a checklist applied immediately before production.
+> Security is the discipline of protecting the system's trust boundaries, identities, data, software supply chain, and operational state against misuse and compromise.
 
 ---
 
-**Status:** Engineering Standard
+**Status:** Engineering Governance
 
 **Version:** 1.0
 
-**Classification:** Security Engineering
-
-**Applies To:** All production systems, with depth determined by system tier, data sensitivity, threat exposure, and regulatory requirements
+**Classification:** Security Architecture
 
 ---
 
 # Purpose
 
-Security engineering exists to reduce the likelihood and impact of:
+This directory defines the engineering standards used to design, build, operate, and continuously improve secure systems.
 
-- unauthorized access,
-- data exposure,
-- data modification,
-- privilege misuse,
-- malicious activity,
-- supply-chain compromise,
-- service disruption,
-- credential compromise.
+Security is not treated as a single technology or a separate phase of development.
 
-Security should be considered throughout the system lifecycle rather than treated as a final compliance activity.
+It is a property that must be considered across:
 
-This domain establishes the security engineering baseline and provides the structure for the detailed security standards that follow.
+- architecture,
+- identity,
+- application behavior,
+- data,
+- dependencies,
+- delivery,
+- infrastructure,
+- observability,
+- operations.
 
----
-
-# Engineering Principle
-
-> **Security should be designed into system boundaries, identities, data flows, dependencies, and operational processes rather than added as a final control layer.**
+The standards in this directory establish the security expectations that apply across those areas.
 
 ---
 
-# 1. Security Begins With the System
+# Security Philosophy
 
-Security decisions depend on understanding:
+The security model is based on a simple principle:
 
-- what the system does,
-- what data it handles,
-- who interacts with it,
-- what it trusts,
-- what it depends on,
-- what could go wrong.
+> **Do not assume trust where trust can be explicitly established, and do not depend on a security control that cannot be verified.**
 
-Security controls should therefore follow the architecture.
+This leads to several engineering behaviors:
 
-A control without an understood threat model may provide little meaningful protection.
+- establish explicit trust boundaries,
+- authenticate identities,
+- authorize every protected capability,
+- minimize privileges,
+- protect secrets and cryptographic material,
+- treat external input as untrusted,
+- secure the software supply chain,
+- test security assumptions,
+- monitor important security boundaries,
+- prepare for compromise,
+- continuously improve after incidents.
 
 ---
 
-# 2. Security Is Risk Management
+# Security Is a System Property
 
-Security engineering is not the elimination of every conceivable threat.
+Security cannot be isolated inside the security directory.
 
-The objective is to understand:
+A vulnerability may originate in:
 
 ```text
-Threat
-   │
-   ▼
-Vulnerability
-   │
-   ▼
-Likelihood
-   │
-   ▼
-Impact
-   │
-   ▼
-Risk
-   │
-   ▼
-Control
-   │
-   ▼
-Residual Risk
+Architecture
+     │
+     ├── Identity
+     │
+     ├── Application
+     │
+     ├── Data
+     │
+     ├── Dependencies
+     │
+     ├── Delivery
+     │
+     ├── Infrastructure
+     │
+     └── Operations
 ```
 
-The appropriate level of security investment depends on the consequences of compromise.
+Therefore, these standards should be read together with the corresponding engineering domains.
 
 ---
 
-# 3. Security by System Tier
+# Security Standards
 
-Security requirements should be proportional to:
+## 1. Identity and Access
 
-- system criticality,
-- data sensitivity,
-- internet exposure,
-- threat environment,
-- regulatory obligations,
-- business impact.
+**File:**
 
-A low-risk internal tool should not necessarily require the same security architecture as a public financial platform.
+`identity-and-access.md`
 
-The governance domain defines the authoritative system-tier model.
+Defines how systems establish identity and control access to capabilities and resources.
 
----
-
-# 4. Security Boundaries
-
-Every production system should identify important security boundaries.
-
-Examples include:
-
-- internet → application,
-- user → application,
-- application → database,
-- service → service,
-- application → third party,
-- production → non-production,
-- human → privileged infrastructure.
-
-For each boundary, the project should understand:
-
-- who is allowed across it,
-- what is trusted,
-- what must be authenticated,
-- what must be authorized,
-- what must be validated.
-
----
-
-# 5. Trust Is Not Assumed
-
-A component should not be trusted merely because it exists inside:
-
-- a private network,
-- a cloud account,
-- a cluster,
-- a corporate network.
-
-Trust should be based on explicit security properties.
-
-For example:
-
-```text
-Network Location
-      ≠
-Identity
-      ≠
-Authorization
-```
-
-Network placement alone should not become the security model.
-
----
-
-# 6. Identity
-
-Identity answers:
-
-> Who or what is making this request?
-
-Identities may represent:
-
-- users,
-- services,
-- workloads,
-- administrators,
-- automated processes,
-- external systems.
-
-Identity should be explicit where authentication and authorization matter.
-
----
-
-# 7. Authentication
-
-Authentication establishes identity.
-
-Examples include:
-
-- passwords,
-- certificates,
-- tokens,
-- workload identities,
-- federated identity,
-- multi-factor authentication.
-
-The appropriate mechanism depends on the threat model and system context.
-
-Authentication should not automatically imply authorization.
-
----
-
-# 8. Authorization
-
-Authorization answers:
-
-> What is this identity allowed to do?
-
-A request may therefore be:
-
-```text
-Authenticated
-     │
-     ▼
-Identity Known
-     │
-     ▼
-Authorization Check
-     │
-     ├── Allowed
-     │
-     └── Denied
-```
-
-Authorization should be enforced at the appropriate system boundary.
-
----
-
-# 9. Least Privilege
-
-Identities should receive the minimum permissions required to perform their responsibilities.
-
-This applies to:
-
-- users,
-- services,
-- workloads,
-- CI/CD systems,
-- administrators,
-- third-party integrations.
-
-Permissions should not become permanently broad simply because they were convenient during development.
-
----
-
-# 10. Privileged Access
-
-Privileged operations require stronger controls.
-
-The project should identify:
-
-- privileged identities,
-- privileged operations,
-- administrative boundaries,
-- approval requirements where appropriate,
-- monitoring requirements.
-
-Privileged access should be limited and auditable.
-
----
-
-# 11. Service-to-Service Security
-
-Internal service communication should be treated according to actual risk.
-
-The project should consider:
+Core concerns include:
 
 - authentication,
 - authorization,
-- transport protection,
-- service identity,
-- credential management,
-- network restrictions.
+- least privilege,
+- service identities,
+- role boundaries,
+- resource-level authorization,
+- tenant isolation,
+- privileged access.
 
-"Internal" should not automatically mean "trusted."
+### Core Principle
 
----
-
-# 12. Data Protection
-
-Security must consider data throughout its lifecycle:
-
-```text
-Creation
-   │
-   ▼
-Processing
-   │
-   ▼
-Transmission
-   │
-   ▼
-Storage
-   │
-   ▼
-Backup
-   │
-   ▼
-Archival
-   │
-   ▼
-Deletion
-```
-
-The data domain defines detailed requirements for data handling.
-
-Security must ensure that appropriate protection exists at each relevant stage.
+> **Authentication establishes who or what is acting; authorization establishes what that identity is allowed to do.**
 
 ---
 
-# 13. Data Classification
+## 2. Secrets and Key Management
 
-Important data should be classified according to sensitivity.
+**File:**
 
-Typical categories may include:
+`secrets-and-key-management.md`
 
-- public,
-- internal,
-- confidential,
-- highly sensitive.
+Defines how sensitive credentials and cryptographic material are created, stored, accessed, rotated, and retired.
 
-The organization should define the authoritative classification model.
-
-Security controls should follow the classification.
-
----
-
-# 14. Encryption
-
-Where required, sensitive data should be protected:
-
-- in transit,
-- at rest,
-- during appropriate processing scenarios.
-
-Encryption should not be treated as a substitute for:
-
-- authorization,
-- access control,
-- secure key management.
-
----
-
-# 15. Key Management
-
-Cryptographic keys are security-sensitive assets.
-
-The project should understand:
-
-- where keys are stored,
-- who can access them,
-- how they are rotated,
-- how compromise is handled,
-- how access is audited.
-
-Application source code should not become a permanent key store.
-
----
-
-# 16. Secrets Management
-
-Secrets may include:
+Core concerns include:
 
 - passwords,
-- API keys,
-- access tokens,
+- API credentials,
+- tokens,
 - certificates,
-- private keys,
-- connection credentials.
+- encryption keys,
+- secret rotation,
+- access control,
+- key lifecycle.
 
-Secrets should be managed through appropriate secret-management mechanisms.
+### Core Principle
 
-They should not be embedded casually in:
+> **Sensitive credentials should exist only where they are required, for only as long as they are required.**
 
-- source code,
+---
+
+## 3. Application Security
+
+**File:**
+
+`application-security.md`
+
+Defines security expectations for application behavior.
+
+Core concerns include:
+
+- input validation,
+- authorization,
+- injection,
+- session security,
+- token validation,
+- file handling,
+- SSRF,
+- business-logic abuse,
+- resource exhaustion,
+- secure error handling.
+
+### Core Principle
+
+> **Every externally influenced value should be treated as untrusted until the application establishes that it is safe for the operation being performed.**
+
+---
+
+## 4. Supply Chain Security
+
+**File:**
+
+`supply-chain-security.md`
+
+Defines security expectations for everything that contributes to a production artifact.
+
+Core concerns include:
+
+- dependencies,
+- package registries,
 - container images,
-- configuration repositories,
-- logs,
-- documentation.
+- build systems,
+- CI/CD,
+- artifact integrity,
+- provenance,
+- SBOMs,
+- artifact signing,
+- compromised dependencies.
+
+### Core Principle
+
+> **Every component that can influence a production artifact is part of the security boundary of that artifact.**
 
 ---
 
-# 17. Credential Lifecycle
+## 5. Security Testing
 
-Security does not end when a credential is created.
+**File:**
 
-The project should consider:
+`security-testing.md`
 
-```text
-Create
-  │
-  ▼
-Use
-  │
-  ▼
-Rotate
-  │
-  ▼
-Revoke
-  │
-  ▼
-Remove
-```
+Defines how security assumptions and controls are tested.
 
-Compromised credentials should have a defined revocation or replacement path.
+Core concerns include:
 
----
-
-# 18. Input Validation
-
-External input should be treated as untrusted until validated.
-
-Examples include:
-
-- HTTP requests,
-- uploaded files,
-- messages,
-- events,
-- query parameters,
-- headers,
-- external API responses.
-
-Validation should consider both:
-
-- syntactic validity,
-- semantic validity.
-
----
-
-# 19. Output and Response Safety
-
-Security also includes how systems expose information.
-
-The project should consider:
-
-- sensitive error messages,
-- stack traces,
-- internal identifiers,
-- debugging information,
-- authorization failures.
-
-Errors should provide useful operational information without unnecessarily exposing sensitive implementation details.
-
----
-
-# 20. Dependency Security
-
-Production systems depend on:
-
-- libraries,
-- frameworks,
-- operating systems,
-- container images,
-- cloud services,
-- external APIs,
-- build tools.
-
-These dependencies become part of the system's attack surface.
-
-Dependency security should therefore be considered an architectural concern.
-
----
-
-# 21. Supply Chain Security
-
-The software supply chain should be considered across:
-
-```text
-Source
-  │
-  ▼
-Dependencies
-  │
-  ▼
-Build
-  │
-  ▼
-Artifact
-  │
-  ▼
-Deployment
-  │
-  ▼
-Runtime
-```
-
-Security controls should protect important boundaries in this chain.
-
-Detailed requirements belong in the relevant delivery and security standards.
-
----
-
-# 22. Vulnerability Management
-
-Projects should have an appropriate mechanism for identifying and addressing vulnerabilities.
-
-The process should consider:
-
-- severity,
-- exploitability,
-- exposure,
-- affected assets,
-- available remediation,
-- business impact.
-
-Not every vulnerability requires identical response time.
-
-Risk should drive prioritization.
-
----
-
-# 23. Security Patching
-
-Important security patches should have a defined path from discovery to deployment.
-
-The process should account for:
-
-- emergency patches,
-- compatibility,
-- testing,
-- rollback,
-- production exposure.
-
-Security should not depend on an informal agreement to "patch sometime."
-
----
-
-# 24. Secure Development
-
-Development practices should reduce common security weaknesses.
-
-Where relevant, teams should consider:
-
-- secure coding practices,
-- dependency management,
-- static analysis,
-- secret scanning,
-- code review,
-- security testing.
-
-Controls should be proportionate to system risk.
-
----
-
-# 25. Security Testing
-
-Security testing may include:
-
-- automated security testing,
+- security unit tests,
+- authorization testing,
+- API testing,
 - dependency scanning,
-- static analysis,
+- secret scanning,
 - dynamic testing,
 - penetration testing,
-- threat-model validation.
-
-The required depth should follow system risk.
-
----
-
-# 26. Threat Modeling
-
-Important systems should identify plausible threats before implementation becomes difficult to change.
-
-A threat model should consider:
-
-- assets,
-- actors,
-- trust boundaries,
-- attack paths,
 - abuse cases,
-- mitigations.
+- security regression testing,
+- vulnerability triage.
 
-A threat model does not need to predict every possible attack.
+### Core Principle
 
-Its purpose is to expose important security assumptions.
-
----
-
-# 27. Abuse Cases
-
-Functional requirements describe what users should be able to do.
-
-Security engineering should also ask:
-
-> What happens if someone intentionally uses the capability in an unintended way?
-
-Examples include:
-
-- excessive requests,
-- privilege escalation,
-- unauthorized data access,
-- malformed input,
-- replay,
-- enumeration.
+> **Security controls are assumptions until they are tested.**
 
 ---
 
-# 28. Security Logging
+## 6. Security Monitoring
 
-Important security events should be observable.
+**File:**
 
-Examples include:
+`security-monitoring.md`
 
-- authentication failures,
-- privilege changes,
-- administrative actions,
-- sensitive-data access,
-- credential changes,
-- policy violations.
+Defines how security-relevant activity is observed in production.
 
-Logging should support detection and investigation without unnecessarily exposing sensitive data.
+Core concerns include:
 
----
+- authentication events,
+- authorization failures,
+- privileged activity,
+- policy changes,
+- suspicious behavior,
+- security alerts,
+- detection coverage,
+- event integrity,
+- investigation support.
 
-# 29. Security Monitoring
+### Core Principle
 
-Security-relevant signals should be monitored according to risk.
-
-The objective is to detect meaningful suspicious behavior rather than simply generate large volumes of logs.
-
-Security monitoring should therefore be connected to:
-
-- known threats,
-- important assets,
-- privileged operations,
-- critical boundaries.
+> **A security control that cannot be observed cannot be reliably trusted in production.**
 
 ---
 
-# 30. Auditability
+## 7. Security Incident Response
 
-Important security actions should be attributable.
+**File:**
 
-The system should be able to determine, where appropriate:
+`incident-response.md`
 
-- who performed an action,
-- what was performed,
-- when it occurred,
-- against which resource,
-- whether it succeeded.
+Defines how the organization responds when preventive security controls are bypassed, compromised, or suspected to have failed.
 
-Shared administrative identities should be avoided where individual accountability is required.
-
----
-
-# 31. Incident Response
-
-A production system should have an appropriate process for responding to security incidents.
-
-The process should address:
+Core concerns include:
 
 - detection,
+- triage,
 - containment,
 - investigation,
+- evidence preservation,
 - eradication,
 - recovery,
 - communication,
-- lessons learned.
+- post-incident review,
+- corrective actions.
 
-Security incidents may require different procedures from ordinary reliability incidents.
+### Core Principle
 
----
-
-# 32. Compromise Assumptions
-
-Security architecture should consider that some controls may eventually fail.
-
-Examples:
-
-- credentials may leak,
-- endpoints may be compromised,
-- dependencies may be vulnerable,
-- users may make mistakes.
-
-The architecture should limit the blast radius where practical.
+> **The organization must be able to detect compromise, contain it, understand it, recover safely, and make the system harder to compromise again.**
 
 ---
 
-# 33. Blast Radius
+# Security Control Lifecycle
 
-Security controls should limit how far a compromise can propagate.
+The standards form a continuous lifecycle:
+
+```text
+          ┌──────────────────────┐
+          │ Identity & Access    │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Protect Application  │
+          │ & Data               │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Secure Supply Chain  │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Test Security        │
+          │ Assumptions          │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Monitor Production   │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Respond to Incidents │
+          └──────────┬───────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐
+          │ Improve the System   │
+          └──────────┬───────────┘
+                     │
+                     └───────────────►
+                             
+                         Continuous Cycle
+```
+
+This is not a linear development process.
+
+Security continuously feeds back into architecture and engineering.
+
+---
+
+# Security Boundaries
+
+Security architecture should explicitly identify important trust boundaries.
 
 Examples include:
 
-- isolated workloads,
-- scoped credentials,
-- separate accounts,
-- network boundaries,
-- authorization boundaries,
-- independent failure domains.
+- user → application,
+- application → database,
+- service → service,
+- workload → infrastructure,
+- application → third-party service,
+- developer → source repository,
+- source → build system,
+- build system → artifact registry,
+- artifact → production environment.
 
-A single compromised identity should not automatically provide unrestricted access to the entire environment.
+Each boundary should answer:
+
+1. Who or what is communicating?
+2. What is trusted?
+3. What is authenticated?
+4. What is authorized?
+5. What data crosses the boundary?
+6. What happens when the security mechanism fails?
+7. What evidence is produced?
 
 ---
 
-# 34. Security and Availability
+# Least Privilege
 
-Security controls can affect reliability.
+Privileges should be intentionally scoped.
+
+The desired relationship is:
+
+```text
+Required Capability
+       │
+       ▼
+Required Permission
+       │
+       ▼
+Required Identity
+```
+
+Avoid granting broad permissions simply because they are convenient.
+
+Privilege should be reviewed as systems evolve.
+
+---
+
+# Defense in Depth
+
+Important security properties should not depend on one control when multiple independent controls are practical.
 
 For example:
 
-- authentication service outage,
-- certificate expiration,
-- unavailable key-management service,
-- security policy misconfiguration.
+```text
+Authentication
+      +
+Authorization
+      +
+Input Validation
+      +
+Network Controls
+      +
+Monitoring
+      +
+Incident Response
+```
 
-Security architecture should therefore consider failure behavior.
+Defense in depth does not mean adding arbitrary layers.
 
-A security control that becomes a single point of failure may create a different operational risk.
-
----
-
-# 35. Security and Performance
-
-Security controls may introduce:
-
-- CPU overhead,
-- latency,
-- additional network calls,
-- storage requirements.
-
-Performance implications should be understood for critical paths.
-
-Security should not be removed merely because it has a cost.
-
-Instead, the trade-off should be understood and engineered.
+Each layer should reduce a meaningful risk.
 
 ---
 
-# 36. Security and Developer Experience
+# Security and Architecture
 
-Security controls should be designed so that secure behavior is the easiest practical path for developers.
+Security decisions should be made alongside architectural decisions.
+
+For significant systems, consider security implications of:
+
+- trust boundaries,
+- data flows,
+- identities,
+- privileges,
+- external exposure,
+- dependencies,
+- failure modes,
+- operational access.
+
+Security should not be added only after the architecture has been finalized.
+
+---
+
+# Security and Data
+
+Security controls must align with data sensitivity.
+
+Consider:
+
+- what data exists,
+- where it is stored,
+- who can access it,
+- how it moves,
+- how long it is retained,
+- how it is deleted.
+
+Data classification should influence security requirements.
+
+---
+
+# Security and Reliability
+
+Security controls can affect availability.
 
 Examples include:
 
-- standardized authentication libraries,
-- managed secrets,
-- secure CI/CD defaults,
-- approved dependency sources,
-- reusable security controls.
+- authentication dependencies,
+- authorization services,
+- secret stores,
+- certificate infrastructure,
+- security gateways.
+
+For important security dependencies, explicitly define failure behavior.
+
+The system should understand the trade-off between:
+
+```text
+Security
+```
+
+and:
+
+```text
+Availability
+```
+
+rather than discovering the trade-off during an outage.
+
+---
+
+# Security and Delivery
+
+The delivery system is part of the security boundary.
+
+Security therefore applies to:
+
+- source repositories,
+- pull requests,
+- build systems,
+- CI/CD workflows,
+- artifact registries,
+- deployment credentials,
+- release processes.
+
+A secure application built by an insecure pipeline is not a secure production system.
+
+---
+
+# Security and Observability
+
+Security events should integrate with the broader observability model.
+
+Security telemetry may include:
+
+- logs,
+- metrics,
+- traces,
+- audit events,
+- identity events,
+- infrastructure events.
+
+However:
+
+> **Security telemetry must itself be protected against unauthorized access and unnecessary data exposure.**
+
+---
+
+# Risk-Based Security
+
+Not every system requires the same security controls.
+
+Security requirements should reflect:
+
+- business criticality,
+- internet exposure,
+- data sensitivity,
+- privilege,
+- threat landscape,
+- regulatory requirements,
+- customer impact,
+- architectural complexity.
+
+The objective is not:
+
+> Maximum security everywhere.
 
 The objective is:
 
-> **Make the secure path the convenient path.**
+> **Appropriate security for the risk.**
 
 ---
 
-# 37. Security Exceptions
+# Security Exceptions
 
-Exceptions may be necessary.
+When a required control cannot be implemented, the exception should be explicit.
 
-A security exception should be:
+An exception should identify:
 
-- explicit,
-- justified,
-- risk-assessed,
-- owned,
-- time-bounded where appropriate.
+- affected system,
+- requirement,
+- reason,
+- risk,
+- compensating control,
+- owner,
+- review date.
 
-"Legacy system" should not become a permanent explanation for an unexamined security risk.
-
----
-
-# 38. Security Evidence
-
-For systems with significant security requirements, teams should be able to demonstrate appropriate evidence.
-
-Examples include:
-
-- threat models,
-- access reviews,
-- vulnerability findings,
-- penetration tests,
-- security test results,
-- audit logs,
-- remediation records.
-
-Evidence requirements should follow system tier and applicable obligations.
+Exceptions should be temporary engineering decisions, not invisible permanent gaps.
 
 ---
 
-# 39. Privacy and Compliance
+# Security Review Triggers
 
-Security and privacy are related but not identical.
+A security review should be considered when introducing:
 
-Security asks:
+- new external exposure,
+- new authentication mechanisms,
+- new authorization models,
+- sensitive data,
+- privileged functionality,
+- new third-party integrations,
+- file uploads,
+- arbitrary outbound requests,
+- new execution capabilities,
+- significant dependency changes,
+- major infrastructure changes.
 
-> How do we protect the system and information?
-
-Privacy asks:
-
-> How should personal information be collected, used, retained, shared, and deleted?
-
-Applicable privacy and regulatory requirements should be identified separately.
-
-Detailed privacy requirements belong in the appropriate data and governance standards.
-
----
-
-# 40. Security Across Environments
-
-Security controls should consider:
-
-- development,
-- test,
-- staging,
-- production.
-
-Production should not be weakened merely to make lower environments convenient.
-
-At the same time, non-production environments may require different controls according to their data and exposure.
+Review depth should be proportional to risk.
 
 ---
 
-# 41. Production Data in Non-Production
+# Security Maturity
 
-Using production data outside production introduces additional risk.
-
-Where production data is required for testing, the project should consider:
-
-- minimization,
-- masking,
-- anonymization,
-- access restrictions,
-- retention,
-- deletion.
-
-The safest production dataset is often the dataset that was never copied.
-
----
-
-# 42. Security Architecture Review
-
-Important systems should undergo an appropriate security architecture review.
-
-The review should consider:
-
-- identities,
-- trust boundaries,
-- data flows,
-- external exposure,
-- privileged access,
-- dependencies,
-- threat model,
-- security controls.
-
-The review depth should match the system's risk.
-
----
-
-# 43. Security During Change
-
-Security assumptions must be reconsidered when changing:
-
-- authentication,
-- authorization,
-- network boundaries,
-- data flows,
-- dependencies,
-- deployment architecture,
-- infrastructure.
-
-A change that appears functionally small may have significant security consequences.
-
----
-
-# 44. Security Lifecycle
-
-Security should follow the system through:
+Security maturity should progress from:
 
 ```text
-Design
-  │
-  ▼
-Build
-  │
-  ▼
-Test
-  │
-  ▼
-Deploy
-  │
-  ▼
-Operate
-  │
-  ▼
-Monitor
-  │
-  ▼
-Respond
-  │
-  ▼
-Improve
+Reactive
+   │
+   ▼
+Defined
+   │
+   ▼
+Repeatable
+   │
+   ▼
+Measured
+   │
+   ▼
+Adaptive
 ```
 
----
+A mature organization does not merely have security documents.
 
-# 45. Minimum Engineering Requirements
+It can demonstrate that:
 
-Every production project should:
-
-- [ ] Identify important security boundaries.
-- [ ] Identify important identities and trust relationships.
-- [ ] Apply appropriate authentication and authorization.
-- [ ] Apply least privilege to important identities.
-- [ ] Protect sensitive data appropriately.
-- [ ] Manage secrets securely.
-- [ ] Identify important dependencies and their security implications.
-- [ ] Provide appropriate security logging and monitoring.
-- [ ] Have an appropriate vulnerability-management process.
-- [ ] Define an appropriate security incident response path.
-- [ ] Identify and manage significant security risks.
-
-Higher-risk systems may additionally require:
-
-- [ ] Formal threat modeling.
-- [ ] Security architecture review.
-- [ ] Penetration testing.
-- [ ] Advanced supply-chain controls.
-- [ ] Stronger privileged-access controls.
-- [ ] Formal security monitoring.
-- [ ] Regular access reviews.
-- [ ] Independent security assessment.
+- controls exist,
+- controls are tested,
+- important activity is visible,
+- incidents can be handled,
+- lessons become engineering improvements.
 
 ---
 
-# Relationship With Other Domains
+# Minimum Security Baseline
 
-Security interacts with almost every engineering domain.
+Every production system should establish appropriate controls for:
 
-### Governance
+- identity,
+- authorization,
+- secrets,
+- application security,
+- dependency security,
+- security testing,
+- security monitoring,
+- incident response.
 
-Defines:
-
-- risk classification,
-- system tiers,
-- compliance obligations,
-- security ownership.
-
-### Architecture
-
-Defines:
-
-- trust boundaries,
-- system boundaries,
-- dependency relationships.
-
-### Data
-
-Defines:
-
-- data classification,
-- protection,
-- retention,
-- deletion,
-- recovery.
-
-### Delivery
-
-Defines:
-
-- source protection,
-- build security,
-- artifact security,
-- deployment controls.
-
-### Reliability
-
-Defines:
-
-- security-control failure behavior,
-- recovery,
-- availability implications.
-
-### Observability
-
-Defines:
-
-- security signals,
-- detection,
-- auditability.
+The exact implementation depends on the system's risk profile.
 
 ---
 
-# Domain Standards
+# Relationship With Other Engineering Domains
 
-The security domain should be expanded through focused standards rather than a single giant checklist.
+Security is intentionally cross-cutting.
 
-Expected areas include:
+This directory should be used alongside:
 
-- `identity-and-access.md`
-- `secrets-and-key-management.md`
-- `application-security.md`
-- `supply-chain-security.md`
-- `security-testing.md`
-- `security-monitoring.md`
-- `incident-response.md`
-- `privacy-and-data-protection.md`
+- `01-governance/`
+- `02-engineering-maturity/`
+- `03-architecture/`
+- `04-data/`
+- `05-reliability/`
+- `07-delivery/`
+- `08-observability/`
+- `09-platform-and-infrastructure/`
+- `10-cost-and-economics/`
+- `11-operational-readiness/`
 
-Additional standards may be introduced when justified by the organization's technology and risk profile.
+Security requirements should influence decisions within each of these domains.
+
+---
+
+# What This Directory Is Not
+
+This directory is not:
+
+- a compliance checklist,
+- a penetration-testing manual,
+- a collection of vendor-specific configurations,
+- a list of security products,
+- a substitute for threat modeling,
+- a substitute for secure engineering.
+
+It defines engineering expectations.
+
+Implementation details belong in the appropriate technology-specific standards and system designs.
 
 ---
 
 # Final Principle
 
-> **Good security does not mean that a system can never be compromised. It means the system makes compromise harder, limits what a compromise can reach, detects important abuse, and provides a controlled path to recovery.**
+> **Security is not a feature added to a system. It is the continuous discipline of controlling trust, limiting privilege, protecting important assets, verifying security assumptions, observing what happens in production, and responding when those assumptions fail.**
